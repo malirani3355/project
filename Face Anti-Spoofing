@@ -1,0 +1,486 @@
+Face detection 
+i)By using open cv with haarcascade:
+import cv2
+face_cascade=cv2.CascadeClassifier(r"C:/Users/Dell/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
+img=cv2.imread(r"C:/Users/Dell/Desktop/rani.jpg")
+gray_img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+faces=face_cascade.detectMultiScale(gray_img,1.3,5)
+for x,y,w,h in faces:
+    img=cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+resized=cv2.resize(img,(800,800))
+cv2.imshow("Gray",resized)
+cv2.waitKey(0)
+cv2.destroyAllwindows()
+ii)By using MTCNN:
+from matplotlib import pyplot
+from matplotlib.patches import Rectangle
+from mtcnn.mtcnn import MTCNN
+# load image from file
+pixels = pyplot.imread(r"C:\Users\Dell\Pictures\Camera Roll\Rani (2).jpg")
+# create the detector, using default weights
+detector = MTCNN()
+# detect faces in the image
+faces = detector.detect_faces(pixels)
+# plot the image
+pyplot.imshow(pixels)
+# get the context for drawing boxes
+ax = pyplot.gca()
+# get coordinates from the first face
+x, y, width, height = faces[0]['box']
+# create the shape
+rect = Rectangle((x, y), width, height, fill=False, color='red')
+# draw the box
+ax.add_patch(rect)
+# show the plot
+pyplot.show()
+
+##Detection of face with eyes:
+import cv2
+face_cascade=cv2.CascadeClassifier(r"C:/Users/Dell/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
+eye_cascade=cv2.CascadeClassifier(r"C:/Users/Dell/Anaconda3/Lib/site-packages/cv2/data/haarcascade_eye.xml")
+cap=cv2.VideoCapture(r"C:/Users/Dell/Desktop/r.mp4")
+while True:
+    ret,img=cap.read()
+    print(img)
+    gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    faces=face_cascade.detectMultiScale(gray,1.3,5)
+    for x,y,w,h in faces:
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+        roi_gray=gray[x:x+w,y:y+h]
+        roi_Color=img[x:x+w,y:y+h]
+        eyes=eye_cascade.detectMultiScale(roi_gray)
+        for ex,ey,ew,eh in eyes:
+            cv2.rectangle(roi_Color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+        cv2.imshow('img',img)
+        cv2.waitKey(30)&0xFF
+        break
+cap.release()
+cv2.destroyAllWindows()
+
+
+##################################################################FACE CROPPING PROGRAMME:
+import cv2
+face_cascade=cv2.CascadeClassifier(r"C:/Users/Dell/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
+img=cv2.imread(r"C:/Users/Dell/Downloads/frame1.jpg")
+gray_img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+faces=face_cascade.detectMultiScale(gray_img,1.3,5)
+print(faces)
+for x,y,w,h in faces:
+    img=cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+    cropped_face=img[y:y+h, x:x+w]
+cv2.imshow("Gray",cropped_face)
+cv2.waitKey(0)
+
+
+##################################################################Store of images in one folder:
+import cv2
+import os
+os.chdir(r"C:\Users\Dell\Desktop\Face Detection")
+dir="Face"
+os.mkdir(dir)
+
+cap = cv2.VideoCapture(r"C:\Users\Dell\Desktop\r.mp4")
+cap
+i=0
+
+while True:
+    ret, frame = cap.read()
+    cv2.imshow("r",frame)
+    cv2.imwrite(dir+"\\""r"+str(i)+".jpg",frame)
+    i+=1
+    if cv2.waitKey(500)==13:
+        break
+cap.release()
+cv2.destroyAllWindows()
+##################################################################Collection of datasets:
+import cv2
+import os
+os.makedirs('database',exist_ok=True)
+print("all images store at :",os.path.join(os.getcwd(),"database"))
+def face_extractor(img):
+    face_classifier=cv2.CascadeClassifier(r"C:/Users/Dell/Anaconda3/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
+    gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    faces=face_classifier.detectMultiScale(img,1.3,5)
+    if faces is():
+        return None
+    for(x,y,w,h) in faces:
+        cropped_face=img[y:y+h,x:x+w]
+        return cropped_face
+    cap=cv2.VideoCapture(r"C:/Users/Dell/Desktop/r.mp4")
+    count=0
+    while True:
+        ret,frame=cap.read()
+        if face_extractor(frame) is not None:
+            count+=1
+            face=cv2.resize(face_extractor(frame),(200,200))
+            face=cv2.cvtColor(face,cv2.COLOR_BGR2GRAY)
+            file_name_path=os.path.join('database',str(count)+".jpg")
+            cv2.imwrite(file_name_path,face)
+            cv2.putText(face,str(count),(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),2)
+            cv2.imshow('face cropped',frame)
+            print("Face not found")
+            pass
+        if cv2.waitKey(1) & 0xFF==ord('q'):
+            break;
+            cap.release()
+            cv2.destroyAllWindows()
+            print("collecting sample complete!!!")
+##################################################################images store in one folder
+import shutil
+import os
+current_path=r"C:\Users\Dell\database\database\Real face"
+save_folder="Real images"
+os.makedirs(save_folder,exist_ok=True)
+i=0
+for folder in os.listdir(current_path):
+    folder_path=os.path.join(current_path,folder)
+    for image in os.listdir(folder_path):
+        save_image=os.path.join(save_folder,'{}.jpg'.format(i))
+        i+=1
+        shutil.copy(os.path.join(folder_path,image),save_image)
+    print(folder_path,"Done")
+   ##################################################################Dataset splitting:
+import split_folders
+split_folders.ratio(r"C:\Users\Dell\database\database","save_folders",seed=3403,ratio=(.8,.2))
+##Another one code for splitting datasets:
+from random import choice
+import shutil
+import os
+train_path=(r"C:\Users\Dell\database\database\Fake images")
+save_folder="train_x"
+os.makedirs(save_folder,exist_ok=True)
+i=0
+for folder in os.listdir(save_folder):
+    print(folder)
+    folder_path=os.path.join(train_path,folder)
+    for image in os.listdir(folder_path):
+        file=choice(train_path)
+        save_image=os.path.join(save_folder,'{}.jpg'.format(i))
+        i+=1
+        list.append('train_path')
+        shutil.move(os.path.join(train_path,image),save_image,file)
+        print(folder_path,"Done")
+
+##################################################################################################################################Build the model CNN:
+import numpy as np         # dealing with arrays
+import os                  # dealing with directories
+from random import shuffle # mixing up or currently ordered data that might lead our network astray in training.
+import glob
+import cv2
+
+path = r"C:\Users\Dell\database"
+IMG_SIZE = 200
+LR = 1e-3
+
+MODEL_NAME = 'Spoofing_dectector-{}-{}.model'.format(LR, '5conv-basic')
+no_of_faces=2
+percentage=0.3
+no_of_images=100
+
+def create_train_data(path):
+    training_data = []
+    folders=os.listdir(path)[0:no_of_faces]
+    for i in range(len(folders)):
+        label = [0 for i in range(no_of_faces)]
+        label[i] = 1
+        print(folders[i])
+        k=0
+        for j in glob.glob(path+"\\"+folders[i]+"\\*.jpg"):            
+          #  if(k==no_of_images):
+            #    break
+            try:
+               
+                img = cv2.imread(j)
+                #print(j)
+                img = cv2.resize(img, (IMG_SIZE,IMG_SIZE))
+                training_data.append([np.array(img),np.array(label)])
+                k=k+1
+            except:
+                print(j)
+                pass
+        print(k)
+    np.save('training_{}_{}_{}.npz'.format(no_of_faces,no_of_images,IMG_SIZE),training_data)
+    shuffle(training_data)
+    return training_data,folders
+
+import tflearn
+from tflearn.layers.conv import conv_2d, max_pool_2d
+from tflearn.layers.core import input_data, dropout, fully_connected
+from tflearn.layers.estimator import regression
+
+
+#model building
+import tensorflow as tf
+tf.reset_default_graph()
+convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 3], name='input')
+
+convnet = conv_2d(convnet, 32, 5, activation='relu')
+
+convnet = max_pool_2d(convnet, 5)
+
+convnet = conv_2d(convnet, 64, 5, activation='relu')
+
+convnet = max_pool_2d(convnet, 5)
+
+convnet = conv_2d(convnet, 128, 5, activation='relu')
+convnet = max_pool_2d(convnet, 5)
+
+convnet = conv_2d(convnet, 64, 5, activation='relu')
+convnet = max_pool_2d(convnet, 5)
+
+
+convnet = conv_2d(convnet, 32, 5, activation='relu')
+convnet = max_pool_2d(convnet, 5)
+
+convnet = fully_connected(convnet, 1024, activation='relu')
+convnet = dropout(convnet, 0.6)
+
+convnet = fully_connected(convnet, no_of_faces, activation='softmax')
+convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categorical_crossentropy', name='targets')
+
+model = tflearn.DNN(convnet, tensorboard_dir='log')
+
+#data loading
+training_data,labels=create_train_data(path)
+#training_data=np.load('training_{}_{}_{}.npz'.format(no_of_faces,no_of_images,IMG_SIZE))
+a=int(len(training_data)*percentage)
+train = training_data[:-a]
+test=training_data[-a:]
+
+X = np.array([i[0] for i in train]).reshape(-1,IMG_SIZE,IMG_SIZE,3)
+Y = [i[1] for i in train]
+
+test_x = np.array([i[0] for i in test]).reshape(-1,IMG_SIZE,IMG_SIZE,3)
+test_y = [i[1] for i in test]
+
+model.fit({'input': X}, {'targets': Y}, n_epoch=10, validation_set=({'input': test_x}, {'targets': test_y}), 
+    snapshot_step=500, show_metric=True, run_id=MODEL_NAME)
+
+model.save(MODEL_NAME)
+    ## Predict the model
+import cv2
+test_data=r"C:\Users\Dell\.spyproject\database\database\Fake images\1.jpg"
+img=cv2.imread(test_data)
+img1=cv2.resize(img,(IMG_SIZE,IMG_SIZE))
+model_out=model.predict([img1])
+result=np.argmax(model_out)
+name=labels[result]
+print(result)
+1
+
+
+######Prediction with loaded model:
+import tflearn
+from tflearn.layers.conv import conv_2d, max_pool_2d
+from tflearn.layers.core import input_data, dropout, fully_connected
+from tflearn.layers.estimator import regression
+import tensorflow as tf
+
+
+def load_mod
+el(model_name="Spoofing_dectector-0.0001-6conv-basic.model"):
+    IMG_SIZE=200
+    no_of_faces=2
+    LR = 1e-4
+    #model building
+    tf.reset_default_graph()
+  
+
+    convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 3], name='input')
+    
+    convnet = conv_2d(convnet, 32, 5, activation='relu')
+    
+    convnet = max_pool_2d(convnet, 5)
+    
+    convnet = conv_2d(convnet, 64, 5, activation='relu')
+    
+    convnet = max_pool_2d(convnet, 5)
+    
+    convnet = conv_2d(convnet, 128, 5, activation='relu')
+    convnet = max_pool_2d(convnet, 5)
+    
+    convnet = conv_2d(convnet, 64, 5, activation='relu')
+    convnet = max_pool_2d(convnet, 5)
+    
+    
+    convnet = conv_2d(convnet, 32, 5, activation='relu')
+    convnet = conv_2d(convnet, 64, 5, activation='relu')
+    convnet = max_pool_2d(convnet, 5)
+    
+    convnet = fully_connected(convnet, 1024, activation='relu')
+    convnet = dropout(convnet, 0.5 )
+    
+    convnet = fully_connected(convnet, no_of_faces, activation='softmax')
+    convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categorical_crossentropy', name='targets')
+    
+    model = tflearn.DNN(convnet, tensorboard_dir='log')
+
+    model.load(model_name)
+    
+    return model
+import tflearn
+import cv2
+import numpy as np
+img = cv2.imread(r"C:\Users\Dell\.spyproject\database\database\Fake images\1.jpg")
+img = cv2.resize(img,(200,200))
+model_out=model.predict([img])
+result=np.argmax(model_out)
+print(result)
+################################################################
+#################################################################App for face anti spoofing
+# -*- coding: utf-8 -*-
+from mtcnn import MTCNN
+from prediction import load_model
+import numpy as np
+import cv2,time
+model=load_model("Spoofing_dectector-0.0001-6conv-basic.model")
+detector = MTCNN()
+labels=["Fake","Real"]
+cap = cv2.VideoCapture(0)
+frame_no=0
+fps=0.0
+while(True):
+    ret, frame = cap.read()
+    cap.set(1,frame_no)
+    t1 = time.time()
+    if not ret:
+        break
+    faces=detector.detect_faces(frame)
+    if len(faces)>0:
+        for face in faces:
+            bbox=face["box"]
+            face_img=frame[bbox[1]:bbox[1]+bbox[3],bbox[0]:bbox[0]+bbox[3]]
+            face_img = cv2.resize(face_img,(200,200))
+            model_out=model.predict([face_img])
+            result=np.argmax(model_out)
+            cv2.putText(frame,labels[result],(bbox[1],bbox[0]), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,(255,255,255),1,cv2.LINE_AA)
+            frame=cv2.rectangle(frame,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,0),2) 
+    cv2.imshow("iii",frame)
+    fps  = ( fps + (1./(time.time()-t1)) ) / 2
+    print(fps)
+    frame_no+=round(16/fps)+1
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
+################################################################################################################################
+#Play ringtons of alert
+import pygame
+from pygame import mixer
+file =r"C:\Users\Dell\Downloads\Star-Trek-Red-Alert-Ringtone.mp3"
+mixer.init()
+mixer.music.load(file)
+mixer.music.play()
+## fixed time 
+import pygame
+from pygame import mixer
+
+file = r"C:\Users\Dell\Downloads\Star-Trek-Red-Alert-Ringtone.mp3"
+mixer.init()
+mixer.music.load(file)
+mixer.music.play()
+pygame.init()
+screen = pygame.display.set_mode((400, 300))
+done = False
+is_blue = True
+x = 30
+y = 30
+ 
+clock = pygame.time.Clock()
+ 
+while not done:
+        for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                        done = True
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        is_blue = not is_blue
+         
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_UP]: y -= 3
+        if pressed[pygame.K_DOWN]: y += 3
+        if pressed[pygame.K_LEFT]: x -= 3
+        if pressed[pygame.K_RIGHT]: x += 3
+         
+        screen.fill((0, 0, 0))
+        if is_blue: color = (0, 128, 255)
+        else: color = (255, 100, 0)
+        pygame.draw.rect(screen, color, pygame.Rect(x, y, 60, 60))
+         
+        pygame.display.flip()
+        clock.tick(60)
+##################################################################################Alerts:
+import cv2
+import os
+import tensorflow as tf
+import tflearn
+import numpy as np
+from pygame import mixer
+import time
+mixer.init()
+#sound = mixer.Sound(r"C:\Users\Dell\Downloads\Alan-Walker-Faded (1).mp3")
+face = cv2.CascadeClassifier('haar cascade files\haarcascade_frontalface_alt.xml')
+
+lbl=['Real','Fake']
+#model = load_model("C:\Users\Dell\model\log\Spoofing_dectector-0.001-5conv-basic.model")
+path = os.getcwd()
+cap = cv2.VideoCapture(0)
+font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+count=0
+score=0
+thicc=2
+rpred=[99]
+lpred=[99]
+while(True):
+    ret, frame = cap.read()
+    height,width = frame.shape[:2]
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face.detectMultiScale(gray,minNeighbors=5,scaleFactor=1.1,minSize=(25,25))
+    #left_eye = leye.detectMultiScale(gray)
+    #right_eye = reye.detectMultiScale(gray)
+    cv2.rectangle(frame, (0,height-50) , (200,height) , (0,0,0) , thickness=cv2.FILLED )
+    for (x,y,w,h) in faces:
+        cv2.rectangle(frame, (x,y) , (x+w,y+h) , (100,100,100) , 1 )
+        break
+    if(rpred[0]==0 and lpred[0]==0):
+        score=score+1
+        cv2.putText(frame,"Real",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+        # if(rpred[0]==1 or lpred[0]==1):
+    else:
+        score=score-1
+        cv2.putText(frame,"Fake",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+    if(score<0):
+        score=0
+    cv2.putText(frame,'Score:'+str(score),(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+    if(score>15):
+        #person is feeling sleepy so we beep the alarm
+        cv2.imwrite(os.path.join(path,'image.jpg'),frame)
+        try:
+            pass
+            #sound.play()
+        except: # isplaying = False
+            pass
+        if(thicc<16):
+            thicc= thicc+2
+        else:
+            thicc=thicc-2
+            if(thicc<2):
+                thicc=2
+        cv2.rectangle(frame,(0,0),(width,height),(0,0,255),thicc)
+    cv2.imshow('frame',frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        cap.release()
+        cv2.destroyAllWindows()       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
